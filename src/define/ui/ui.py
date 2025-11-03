@@ -16,7 +16,7 @@ class UI:
         self.console.print("This Application requires Merriam-Webster Key for both Dictionary and Thesaurus")
         print("Please enter your Merriam-Webster Dictionary API:", end='')
         dictionary_api_key = input()
-        print(f"\033[A\rPlease enter your Merriam-Webster Dictionary API:{' ' * len(dictionary_api_key)}\rPlease enter your CheckWX API:", end='')
+        print(f"\033[A\rPlease enter your Merriam-Webster Dictionary API:{' ' * len(dictionary_api_key)}\rPlease enter your Merriam-Webster Dictionary API:", end='')
         while dictionary_api_key == '':
             self.console.print("[bold red]Invalid API Key: Can't be empty [/bold red]")
             print("Please enter your Merriam-Webster Dictionary API:", end='')
@@ -25,6 +25,20 @@ class UI:
         print("\n")
         self.__parent.config.set_data_dict({"DICTIONARY KEY":dictionary_api_key})
 
+        print("Please enter your Merriam-Webster Thesaurus API:", end='')
+        thesaurus_api_key = input()
+        print(
+            f"\033[A\rPlease enter your Merriam-Webster Thesaurus API:{' ' * len(thesaurus_api_key)}\rPlease enter your Merriam-Webster Thesaurus API:",
+            end='')
+        while thesaurus_api_key == '':
+            self.console.print("[bold red]Invalid API Key: Can't be empty [/bold red]")
+            print("Please enter your Merriam-Webster Thesaurus API:", end='')
+            thesaurus_api_key = input()
+            print(
+                f"\033[A\rPlease enter your Merriam-Webster Thesaurus API:{' ' * len(thesaurus_api_key)}\rPlease enter your Merriam-Webster Thesaurus API:",
+                end='')
+        print("\n")
+        self.__parent.config.set_data_dict({"THESAURUS KEY": thesaurus_api_key})
         self.__parent.config.write_config()
         exit(0)
 
