@@ -9,7 +9,7 @@ from define.utils.singleton import SingletonMeta
 
 class ConfigManager(metaclass=SingletonMeta):
     def __init__(self):
-        self.config_dir = DirectoryManager.get_config_dir()
+        self.config_dir = DirectoryManager.get_config_directory()
         self.__data = dict()
 
     def read_config(self):
