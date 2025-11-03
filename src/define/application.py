@@ -42,4 +42,4 @@ class Application:
 
 
     def run(self):
-        print("hellord")
+        self.ui.run()
