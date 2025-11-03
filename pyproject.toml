@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "Define"
+version = "0.0.1"
+authors = [
+  { name="Gustavo Henrique Santos Souza de Miranda", email="gustavohssmiranda@gmail.com" }
+]
+description = "Dictionary tool for CLI"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "requests",
+    "rich"
+
+]
+
+[project.urls]
+Homepage = ""
+Issues = ""
+
+[project.scripts]
+define = "define.command:main"
