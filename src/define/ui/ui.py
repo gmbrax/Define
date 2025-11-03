@@ -13,7 +13,7 @@ class UI:
         return False
 
     def configure(self):
-        self.console.print("This Application requires Merriam-Webster Key for both Dictionary and Thesaurus")
+        self.console.print("This Application requires Merriam-Webster Key for both Dictionary and Thesaurus\n")
         print("Please enter your Merriam-Webster Dictionary API:", end='')
         dictionary_api_key = input()
         print(f"\033[A\rPlease enter your Merriam-Webster Dictionary API:{' ' * len(dictionary_api_key)}\rPlease enter your Merriam-Webster Dictionary API:", end='')
