@@ -1,4 +1,4 @@
-from define.applicatiom import Application
+from define.application import Application
 
 from define.command import main
 
