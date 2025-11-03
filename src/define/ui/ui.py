@@ -13,6 +13,19 @@ class UI:
         return False
 
     def configure(self):
+        self.console.print("This Application requires Merriam-Webster Key for both Dictionary and Thesaurus")
+        print("Please enter your Merriam-Webster Dictionary API:", end='')
+        dictionary_api_key = input()
+        print(f"\033[A\rPlease enter your Merriam-Webster Dictionary API:{' ' * len(dictionary_api_key)}\rPlease enter your CheckWX API:", end='')
+        while dictionary_api_key == '':
+            self.console.print("[bold red]Invalid API Key: Can't be empty [/bold red]")
+            print("Please enter your Merriam-Webster Dictionary API:", end='')
+            dictionary_api_key = input()
+            print(f"\033[A\rPlease enter your Merriam-Webster Dictionary API:{' ' * len(dictionary_api_key)}\rMerriam-Webster Dictionary API", end='')
+        print("\n")
+        self.__parent.config.set_data_dict({"DICTIONARY KEY":dictionary_api_key})
+
+        self.__parent.config.write_config()
         exit(0)
 
     def check_configuration(self):
@@ -21,12 +34,15 @@ class UI:
             exit(1)
 
     def run(self):
-        if self.check_configure_mode():
-            self.configure()
+
 
         self.console.print("[bold]Define[/bold] [italic white]V.0.0.1[/italic white ] by Gustavo Henrique S. S. de Miranda\n")
         self.console.print("Definitions and thesaurus data provided by Merriam-Webster, Inc. © Merriam-Webster, Inc. All rights reserved.")
         self.console.print("This application uses data from Merriam-Webster's Dictionary and Thesaurus APIs, referenced with permission.")
         self.console.print("\n")
+
+        if self.check_configure_mode():
+            self.configure()
+
         if self.__parent.run_mode:
             self.check_configuration()

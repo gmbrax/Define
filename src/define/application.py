@@ -20,6 +20,7 @@ class Application:
 
         self.__validate_args()
 
+
     def __validate_args(self):
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("--configure","-c",action="store_true", help="Runs the configuration "
@@ -34,9 +35,12 @@ class Application:
         self.parser.add_argument("Word", nargs='?', type=str, help="Word to be defined")
 
         self.args = self.parser.parse_args()
+        if self.args.configure:
+            self.run_mode = False
 
         if self.args.configure and self.args.Word:
             self.parser.error("Cannot use --configure with a word")
+
 
 
 
