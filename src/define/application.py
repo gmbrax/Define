@@ -23,6 +23,13 @@ class Application:
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("--configure","-c",action="store_true", help="Runs the configuration "
                                                                               "wizard")
+
+        self.parser.add_argument("-d","--dictionary",action="store_true", help="Shows the dictionary "
+                                                                               "definition")
+
+        self.parser.add_argument("-t","--thesaurus",action="store_true", help="Shows the thesaurus"
+                                                                              " definition")
+
         self.parser.add_argument("Word", nargs='?', type=str, help="Word to be defined")
 
         self.args = self.parser.parse_args()
