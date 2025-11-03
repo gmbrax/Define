@@ -11,6 +11,7 @@ class Application:
         self.parser = None
         self.args = None
         self.is_configured = False
+        self.run_mode = True
         self.config = ConfigManager()
 
     def setup(self)->None:
