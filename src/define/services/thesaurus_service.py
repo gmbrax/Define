@@ -131,10 +131,20 @@ class ThesaurusService(ServiceBase):
                 # Remove markup básico
                 text = dt_item[1].strip()
                 text = text.lstrip(':').strip()
-                if text:
+                # Filtra pontuação isolada
+                if text and not self._is_only_punctuation(text):
                     text_parts.append(text)
 
-        definition_text = ' '.join(text_parts) if text_parts else f"[Thesaurus entry {index + 1}]"
+        # Se não achou texto, usa os sinônimos como descrição
+        if not text_parts:
+            synonyms = self._extract_word_list(sense, 'syn_list')
+            if synonyms:
+                # Usa primeiros sinônimos como descrição
+                definition_text = f"synonymous with: {', '.join(synonyms[:3])}"
+            else:
+                definition_text = f"[Thesaurus entry {index + 1}]"
+        else:
+            definition_text = ' '.join(text_parts)
 
         return Definition(
             index=index + 1,
@@ -144,6 +154,11 @@ class ThesaurusService(ServiceBase):
             related=self._extract_word_list(sense, 'rel_list'),
             antonyms=self._extract_word_list(sense, 'ant_list')
         )
+
+    def _is_only_punctuation(self, text: str) -> bool:
+        """Verifica se texto é apenas pontuação/espaços"""
+        import string
+        return all(c in string.punctuation + string.whitespace for c in text)
 
     def _enrich_entry(self, entry: Entry, raw_thesaurus: List[Dict]):
         """Enriquece uma entrada com dados do thesaurus"""
