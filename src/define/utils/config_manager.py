@@ -35,6 +35,8 @@ class ConfigManager(metaclass=SingletonMeta):
         default = {
             "THESAURUS KEY": "",
             "DICTIONARY KEY":"",
+            "Dictionary URL":"https://dictionaryapi.com/api/v3/references/collegiate/json/",
+            "Thesaurus URL":"https://dictionaryapi.com/api/v3/references/thesaurus/json/"
 
 
         }
