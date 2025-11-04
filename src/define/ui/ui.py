@@ -46,7 +46,10 @@ class UI:
         if not self.__parent.is_configured:
             self.console.print("[bold red]Please configure before running this program.[/bold red]")
             exit(1)
-
+    def check_if_word_argument_exists(self):
+        if self.__parent.args.Word is None:
+            return False
+        return True
     def run(self):
 
 
@@ -60,3 +63,9 @@ class UI:
 
         if self.__parent.run_mode:
             self.check_configuration()
+
+        if not self.check_if_word_argument_exists():
+            word = self.console.input("Please type the word to Define:")
+
+        with self.console.status("[bold green]Fetching definitions...[/bold green]") as status:
+            pass
