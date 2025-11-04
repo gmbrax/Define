@@ -132,8 +132,8 @@ class UI:
                     return
 
                 main_entries, sub_entries = dict_result
-
-            self.__parent.thesaurus.enrich_entries(word, main_entries)
+            if not (self.__parent.args.dictionary and not self.__parent.args.thesaurus):
+                self.__parent.thesaurus.enrich_entries(word, main_entries)
 
         # Exibe resultados
         self.display_results(main_entries, sub_entries)
