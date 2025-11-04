@@ -116,23 +116,50 @@ class DictionaryService(ServiceBase):
                 for sense_tuple in sseq_block:
                     if sense_tuple[0] == 'sense':
                         sense = sense_tuple[1]
-                        definitions.append(self._process_sense(sense, count))
+                        definitions.append(self._process_sense(sense, count, entry))
                         count += 1
 
         return definitions
 
-    def _process_sense(self, sense: Dict, index: int) -> Definition:
+    def _process_sense(self, sense: Dict, index: int, entry: Dict) -> Definition:
         """Processa um sense individual"""
         texts, examples = self._extract_sense_content(sense)
 
+        # Se não achou texto válido, tenta fallbacks
+        if not texts:
+            # Fallback 1: Pega do shortdef se houver
+            shortdefs = entry.get('shortdef', [])
+            if shortdefs and index < len(shortdefs):
+                fallback_text = self.text_processor.clean_text(shortdefs[index])
+                if fallback_text and not self._is_only_punctuation(fallback_text):
+                    texts = [fallback_text]
+
+            # Fallback 2: Se ainda não tem, usa placeholder descritivo
+            if not texts:
+                sn = sense.get('sn', '')
+                if sn:
+                    texts = [f"[Definition {index + 1} - see original source]"]
+                else:
+                    texts = [f"[Definition {index + 1}]"]
+
+        # Junta textos e filtra pontuação isolada
+        definition_text = ' '.join(texts)
+        if self._is_only_punctuation(definition_text):
+            definition_text = f"[Definition {index + 1} - see original source]"
+
         return Definition(
             index=index + 1,
-            text=' '.join(texts) if texts else f"[Sense {sense.get('sn', index + 1)}]",
+            text=definition_text,
             examples=examples,
             synonyms=self._extract_word_list(sense, 'syn_list'),
             related=self._extract_word_list(sense, 'rel_list'),
             antonyms=self._extract_word_list(sense, 'ant_list')
         )
+
+    def _is_only_punctuation(self, text: str) -> bool:
+        """Verifica se texto é apenas pontuação/espaços"""
+        import string
+        return all(c in string.punctuation + string.whitespace for c in text)
 
     def _extract_sense_content(self, sense: Dict) -> Tuple[List[str], List[str]]:
         """Extrai textos e exemplos"""
@@ -144,25 +171,26 @@ class DictionaryService(ServiceBase):
 
             if kind == 'text':
                 cleaned = self.text_processor.clean_text(content)
-                if cleaned:
+                # Filtra pontuação isolada
+                if cleaned and not self._is_only_punctuation(cleaned):
                     texts.append(cleaned)
 
             elif kind == 'vis':
                 for vis in content:
                     example = self.text_processor.clean_text(vis.get('t', ''))
-                    if example:
+                    if example and not self._is_only_punctuation(example):
                         examples.append(example)
 
             elif kind == 'sdsense':
                 sd = content.get('sd', '')
-                if sd:
-                    texts.append(f"Subdef: {sd}")
+                if sd and not self._is_only_punctuation(sd):
+                    texts.append(f"({sd})")
 
                 if 'dt' in content:
                     for sub_dt in content['dt']:
                         if sub_dt[0] == 'text':
                             sub_text = self.text_processor.clean_text(sub_dt[1])
-                            if sub_text:
+                            if sub_text and not self._is_only_punctuation(sub_text):
                                 texts.append(sub_text)
 
         return texts, examples
@@ -184,5 +212,6 @@ class DictionaryService(ServiceBase):
         summaries = []
         for sd in entry.get('shortdef', []):
             cleaned = self.text_processor.clean_text(sd)
-            summaries.append(cleaned)
+            if cleaned and not self._is_only_punctuation(cleaned):
+                summaries.append(cleaned)
         return summaries

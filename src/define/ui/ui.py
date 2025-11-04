@@ -98,23 +98,42 @@ class UI:
             word = self.__parent.args.Word
 
         with self.console.status("[bold green]Fetching definitions...[/bold green]"):
-            # Busca dicionário
-            dict_result = self.__parent.dictionary.fetch_and_process(word)
+            main_entries = []
+            sub_entries = []
 
-            if not dict_result:
-                self.console.print(f"[bold red]No results found for '{word}'[/bold red]")
-                return
+            # 🎯 FLUXO 1: Apenas Dicionário (-d)
+            if self.__parent.args.dictionary and not self.__parent.args.thesaurus:
+                dict_result = self.__parent.dictionary.fetch_and_process(word)
 
-            main_entries, sub_entries = dict_result
+                if not dict_result:
+                    self.console.print(f"[bold red]No dictionary results found for '{word}'[/bold red]")
+                    return
 
-            # Enriquece com thesaurus se flag -t ou -d não estiver presente (default ambos)
-            if not self.__parent.args.dictionary and not self.__parent.args.thesaurus:
-                # Default: mostra ambos
-                main_entries = self.__parent.thesaurus.fetch_and_enrich(word, main_entries)
-            elif self.__parent.args.thesaurus:
-                # Só thesaurus
-                main_entries = self.__parent.thesaurus.fetch_and_enrich(word, main_entries)
-            # Se -d (dictionary only), não enriquece
+                main_entries, sub_entries = dict_result
+                # NÃO enriquece com thesaurus
+
+            # 🎯 FLUXO 2: Apenas Thesaurus (-t)
+            elif self.__parent.args.thesaurus and not self.__parent.args.dictionary:
+                thes_result = self.__parent.thesaurus.fetch_and_process(word)
+
+                if not thes_result:
+                    self.console.print(f"[bold red]No thesaurus results found for '{word}'[/bold red]")
+                    return
+
+                main_entries, sub_entries = thes_result
+                # Já vem processado do thesaurus
+
+            # 🎯 FLUXO 3: Ambos (default, sem flags)
+            else:
+                dict_result = self.__parent.dictionary.fetch_and_process(word)
+
+                if not dict_result:
+                    self.console.print(f"[bold red]No results found for '{word}'[/bold red]")
+                    return
+
+                main_entries, sub_entries = dict_result
+            if not (self.__parent.args.dictionary and not self.__parent.args.thesaurus):
+                self.__parent.thesaurus.enrich_entries(word, main_entries)
 
         # Exibe resultados
         self.display_results(main_entries, sub_entries)
