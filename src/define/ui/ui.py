@@ -133,8 +133,7 @@ class UI:
 
                 main_entries, sub_entries = dict_result
 
-                # Enriquece com thesaurus
-                main_entries = self.__parent.thesaurus.fetch_and_enrich(word, main_entries)
+            self.__parent.thesaurus.enrich_entries(word, main_entries)
 
         # Exibe resultados
         self.display_results(main_entries, sub_entries)
