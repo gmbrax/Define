@@ -1,6 +1,6 @@
 from typing import List, Dict, Optional, Tuple
 
-from define.utils import ServiceBase, APIClient
+from define.utils import ServiceBase, APIClient, TextProcessor
 from define.models import Entry, Definition, Pronunciation
 
 
@@ -10,6 +10,10 @@ class ThesaurusService(ServiceBase):
     def __init__(self, parent):
         super().__init__(parent)
         self.api_client = APIClient()
+        self.text_processor = TextProcessor(self.api_client)
+
+        # Injeta resolver de refs (mesmo padrão do DictionaryService)
+        self.text_processor.set_ref_resolver(self._resolve_ref)
 
     # ========== PUBLIC METHODS ==========
 
@@ -54,6 +58,23 @@ class ThesaurusService(ServiceBase):
             self._enrich_entry(entry, raw_data)
 
     # ========== PRIVATE FETCH HELPER ==========
+
+    def _resolve_ref(self, ref_word: str) -> str:
+        """
+        Resolve cross-reference buscando na API (para TextProcessor).
+
+        Args:
+            ref_word: Palavra referenciada
+
+        Returns:
+            Headword resolvido ou palavra original
+        """
+        raw_data = self._fetch_thesaurus_data(ref_word)
+
+        if raw_data and isinstance(raw_data, list) and raw_data and isinstance(raw_data[0], dict):
+            return raw_data[0].get('hwi', {}).get('hw', ref_word).replace('*', '')
+
+        return ref_word
 
     def _fetch_thesaurus_data(self, word: str) -> Optional[List[Dict]]:
         """
@@ -196,12 +217,12 @@ class ThesaurusService(ServiceBase):
         text_parts = []
         for dt_item in sense.get('dt', []):
             if dt_item[0] == 'text':
-                # Remove markup básico
-                text = dt_item[1].strip()
-                text = text.lstrip(':').strip()
+                # ✅ LIMPA markup MW antes de processar
+                cleaned = self.text_processor.clean_text(dt_item[1])
+                cleaned = cleaned.lstrip(':').strip()
                 # Filtra pontuação isolada
-                if text and not self._is_only_punctuation(text):
-                    text_parts.append(text)
+                if cleaned and not self._is_only_punctuation(cleaned):
+                    text_parts.append(cleaned)
 
         # Se não achou texto, usa os sinônimos como descrição
         if not text_parts:
