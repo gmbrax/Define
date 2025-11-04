@@ -1,5 +1,6 @@
 import argparse
 
+from define.services import DictionaryService, ThesaurusService
 from define.ui import UI
 from define.utils import ConfigManager
 
@@ -13,6 +14,8 @@ class Application:
         self.is_configured = False
         self.run_mode = True
         self.config = ConfigManager()
+        self.dictionary = DictionaryService(self)
+        self.thesaurus = ThesaurusService(self)
 
     def setup(self)->None:
         if self.config.read_config() is not None:
